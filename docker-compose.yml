@@ -1,0 +1,32 @@
+services:
+  megamek:
+    build:
+      context: .
+      args:
+        # Pin a version (e.g. 0.50.12) or use "latest" to grab the newest
+        # GitHub release at build time. See .env / .env.example.
+        MM_VERSION: ${MM_VERSION:-latest}
+    image: megamek:${MM_VERSION:-latest}
+    container_name: megamek
+    restart: unless-stopped
+    ports:
+      - "${MM_PORT:-2346}:${MM_PORT:-2346}"
+    environment:
+      MM_XMX: ${MM_XMX:-4096m}
+      MM_PORT: ${MM_PORT:-2346}
+      MM_SAVEGAME: ${MM_SAVEGAME:-}
+      MM_EXTRA_ARGS: ${MM_EXTRA_ARGS:-}
+    volumes:
+      # Named volumes are seeded from the image on first run, so the bundled
+      # default config is preserved while changes/savegames persist.
+      - megamek-mmconf:/opt/megamek/mmconf
+      - megamek-savegames:/opt/megamek/savegames
+      - megamek-logs:/opt/megamek/logs
+    # Keep stdin/tty so you can attach and watch the server console.
+    stdin_open: true
+    tty: true
+
+volumes:
+  megamek-mmconf:
+  megamek-savegames:
+  megamek-logs:
